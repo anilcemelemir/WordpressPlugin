@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: wp_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_password
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - wp_network
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wp_site
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_password
+    volumes:
+      - wp_data:/var/www/html
+      - ./plugins/event-manager:/var/www/html/wp-content/plugins/event-manager
+    ports:
+      - "8081:80"
+    networks:
+      - wp_network
+
+  wpcli:
+    image: wordpress:cli
+    container_name: wp_cli
+    depends_on:
+      - wordpress
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_password
+    volumes:
+      - wp_data:/var/www/html
+      - ./plugins/event-manager:/var/www/html/wp-content/plugins/event-manager
+    networks:
+      - wp_network
+    entrypoint: wp
+    command: "--info"
+    user: "33:33"
+
+volumes:
+  db_data:
+  wp_data:
+
+networks:
+  wp_network:
+    driver: bridge

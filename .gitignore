@@ -1,0 +1,24 @@
+# Dependencies
+plugins/event-manager/vendor/
+plugins/event-manager/composer.lock
+
+# Docker volumes
+db_data/
+wp_data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+
+# Build artifacts
+*.zip
